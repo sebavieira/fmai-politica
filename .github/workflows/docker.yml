@@ -30,6 +30,7 @@ jobs:
               RAILS_ENV=production
               BUNDLE_WITHOUT=development:test
               RAILS_SERVE_STATIC_FILES=true
+              GIT_SHA=${{ github.sha }}
     steps:
       - uses: actions/checkout@v4
 
