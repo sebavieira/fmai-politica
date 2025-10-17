@@ -26,3 +26,7 @@ COPY --from=prerelease /usr/src/app/scripts scripts
 RUN mkdir -p /usr/src/app/logs /usr/src/app/media && chown -R bun:bun /usr/src/app/logs /usr/src/app/media
 
 EXPOSE 3025
+
+USER bun
+
+CMD ["bun", "src/index.ts"]
