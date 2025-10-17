@@ -1,0 +1,1997 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "@fazer-ai/baileys-api",
+    "description": "Baileys API for WhatsApp. [See on GitHub](https://github.com/fazer-ai/baileys-api.git)",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3025",
+      "description": "Local development server"
+    },
+    {
+      "url": "{scheme}://{customUrl}",
+      "description": "Custom server",
+      "variables": {
+        "scheme": {
+          "enum": [
+            "http",
+            "https"
+          ],
+          "default": "https",
+          "description": "HTTP or HTTPS"
+        },
+        "customUrl": {
+          "default": "your-domain.com",
+          "description": "Your API domain (without protocol)"
+        }
+      }
+    }
+  ],
+  "tags": [
+    {
+      "name": "Status",
+      "description": "Fetch server status"
+    },
+    {
+      "name": "Connections",
+      "description": "WhatsApp connections operations"
+    },
+    {
+      "name": "Admin",
+      "description": "Admin operations"
+    },
+    {
+      "name": "Media",
+      "description": "Retrieve media content from a message"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "xApiKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-api-key",
+        "description": "API key. See scripts/manage-api-keys.ts"
+      }
+    },
+    "schemas": {}
+  },
+  "paths": {
+    "/status": {
+      "get": {
+        "operationId": "getStatus",
+        "tags": [
+          "Status"
+        ],
+        "security": [
+          {
+            "xApiKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Server running",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "packageInfo": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "example": "baileys-api"
+                        },
+                        "version": {
+                          "type": "string",
+                          "example": "1.0.0"
+                        },
+                        "description": {
+                          "type": "string"
+                        },
+                        "repository": {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "example": "git"
+                            },
+                            "url": {
+                              "type": "string",
+                              "example": "https://github.com/fazer-ai/baileys-api.git"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "port": {
+                      "type": "number",
+                      "example": 3025
+                    },
+                    "env": {
+                      "type": "string",
+                      "enum": [
+                        "development",
+                        "production"
+                      ],
+                      "example": "development"
+                    },
+                    "logLevel": {
+                      "type": "string",
+                      "example": "info"
+                    },
+                    "baileys": {
+                      "type": "object",
+                      "properties": {
+                        "logLevel": {
+                          "type": "string",
+                          "example": "warn"
+                        },
+                        "clientVersion": {
+                          "type": "string",
+                          "example": "default"
+                        },
+                        "ignoreGroupMessages": {
+                          "type": "boolean",
+                          "example": true
+                        },
+                        "ignoreStatusMessages": {
+                          "type": "boolean",
+                          "example": true
+                        },
+                        "ignoreBroadcastMessages": {
+                          "type": "boolean",
+                          "example": true
+                        },
+                        "ignoreNewsletterMessages": {
+                          "type": "boolean",
+                          "example": true
+                        },
+                        "ignoreBotMessages": {
+                          "type": "boolean",
+                          "example": true
+                        },
+                        "ignoreMetaAiMessages": {
+                          "type": "boolean",
+                          "example": true
+                        }
+                      }
+                    },
+                    "redis": {
+                      "type": "object",
+                      "properties": {
+                        "url": {
+                          "type": "string",
+                          "example": "redis://localhost:6379"
+                        },
+                        "password": {
+                          "type": "string",
+                          "example": "********",
+                          "description": "Omitted password"
+                        }
+                      }
+                    },
+                    "webhook": {
+                      "type": "object",
+                      "properties": {
+                        "retryPolicy": {
+                          "type": "object",
+                          "properties": {
+                            "maxRetries": {
+                              "type": "number",
+                              "example": 3
+                            },
+                            "retryInterval": {
+                              "type": "number",
+                              "example": 5000
+                            },
+                            "backoffFactor": {
+                              "type": "number",
+                              "example": 3
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "corsOrigin": {
+                      "type": "string",
+                      "example": "localhost"
+                    },
+                    "keyStore": {
+                      "type": "object",
+                      "properties": {
+                        "lruCacheMax": {
+                          "type": "number",
+                          "example": 100
+                        },
+                        "lruCacheTtl": {
+                          "type": "number",
+                          "example": 600000
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/status/auth": {
+      "get": {
+        "operationId": "getStatusAuth",
+        "tags": [
+          "Status"
+        ],
+        "security": [
+          {
+            "xApiKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authenticated"
+          }
+        }
+      }
+    },
+    "/admin/connections/logout-all": {
+      "post": {
+        "operationId": "postAdminConnectionsLogout-all",
+        "tags": [
+          "Admin"
+        ],
+        "security": [
+          {
+            "xApiKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Initiated logout for all connections"
+          }
+        }
+      }
+    },
+    "/connections/{phoneNumber}": {
+      "post": {
+        "parameters": [
+          {
+            "description": "Phone number for connection. Must have + prefix.",
+            "schema": {
+              "type": "string",
+              "minLength": 6,
+              "maxLength": 16,
+              "pattern": "^\\+\\d{5,15}$",
+              "example": "+551234567890"
+            },
+            "in": "path",
+            "name": "phoneNumber",
+            "required": true
+          }
+        ],
+        "operationId": "postConnectionsByPhoneNumber",
+        "tags": [
+          "Connections"
+        ],
+        "security": [
+          {
+            "xApiKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Connection initiated"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "clientName": {
+                    "description": "Name of the client to be used on WhatsApp connection",
+                    "example": "My WhatsApp Client",
+                    "type": "string"
+                  },
+                  "webhookUrl": {
+                    "format": "uri",
+                    "description": "URL for receiving updates",
+                    "example": "http://localhost:3026/whatsapp/+1234567890",
+                    "type": "string"
+                  },
+                  "webhookVerifyToken": {
+                    "minLength": 6,
+                    "description": "Token for verifying webhook",
+                    "example": "a3f4b2",
+                    "type": "string"
+                  },
+                  "includeMedia": {
+                    "description": "Include media in messages.upsert event payload as base64 string",
+                    "default": true,
+                    "type": "boolean"
+                  },
+                  "syncFullHistory": {
+                    "description": "Sync full history of messages on connection.",
+                    "default": false,
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "webhookUrl",
+                  "webhookVerifyToken"
+                ]
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "clientName": {
+                    "description": "Name of the client to be used on WhatsApp connection",
+                    "example": "My WhatsApp Client",
+                    "type": "string"
+                  },
+                  "webhookUrl": {
+                    "format": "uri",
+                    "description": "URL for receiving updates",
+                    "example": "http://localhost:3026/whatsapp/+1234567890",
+                    "type": "string"
+                  },
+                  "webhookVerifyToken": {
+                    "minLength": 6,
+                    "description": "Token for verifying webhook",
+                    "example": "a3f4b2",
+                    "type": "string"
+                  },
+                  "includeMedia": {
+                    "description": "Include media in messages.upsert event payload as base64 string",
+                    "default": true,
+                    "type": "boolean"
+                  },
+                  "syncFullHistory": {
+                    "description": "Sync full history of messages on connection.",
+                    "default": false,
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "webhookUrl",
+                  "webhookVerifyToken"
+                ]
+              }
+            },
+            "text/plain": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "clientName": {
+                    "description": "Name of the client to be used on WhatsApp connection",
+                    "example": "My WhatsApp Client",
+                    "type": "string"
+                  },
+                  "webhookUrl": {
+                    "format": "uri",
+                    "description": "URL for receiving updates",
+                    "example": "http://localhost:3026/whatsapp/+1234567890",
+                    "type": "string"
+                  },
+                  "webhookVerifyToken": {
+                    "minLength": 6,
+                    "description": "Token for verifying webhook",
+                    "example": "a3f4b2",
+                    "type": "string"
+                  },
+                  "includeMedia": {
+                    "description": "Include media in messages.upsert event payload as base64 string",
+                    "default": true,
+                    "type": "boolean"
+                  },
+                  "syncFullHistory": {
+                    "description": "Sync full history of messages on connection.",
+                    "default": false,
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "webhookUrl",
+                  "webhookVerifyToken"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "parameters": [
+          {
+            "description": "Phone number for connection. Must have + prefix.",
+            "schema": {
+              "type": "string",
+              "minLength": 6,
+              "maxLength": 16,
+              "pattern": "^\\+\\d{5,15}$",
+              "example": "+551234567890"
+            },
+            "in": "path",
+            "name": "phoneNumber",
+            "required": true
+          }
+        ],
+        "operationId": "deleteConnectionsByPhoneNumber",
+        "tags": [
+          "Connections"
+        ],
+        "security": [
+          {
+            "xApiKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Disconnected"
+          },
+          "404": {
+            "description": "Phone number not found"
+          }
+        }
+      }
+    },
+    "/connections/{phoneNumber}/presence": {
+      "patch": {
+        "parameters": [
+          {
+            "description": "Phone number for connection. Must have + prefix.",
+            "schema": {
+              "type": "string",
+              "minLength": 6,
+              "maxLength": 16,
+              "pattern": "^\\+\\d{5,15}$",
+              "example": "+551234567890"
+            },
+            "in": "path",
+            "name": "phoneNumber",
+            "required": true
+          }
+        ],
+        "operationId": "patchConnectionsByPhoneNumberPresence",
+        "tags": [
+          "Connections"
+        ],
+        "security": [
+          {
+            "xApiKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Presence update sent successfully"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "unavailable",
+                      "available",
+                      "composing",
+                      "recording",
+                      "paused"
+                    ],
+                    "description": "Presence type. `available` is automatically reset to `unavailable` after 60s. `composing` and `recording` are automatically held for ~25s by WhatsApp. `paused` can be used to reset `composing` and `recording` early.",
+                    "example": "available"
+                  },
+                  "toJid": {
+                    "description": "Recipient whatsapp jid [Required for `composing`, `recording`, and `paused`]",
+                    "example": "551101234567@s.whatsapp.net",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "type"
+                ]
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "unavailable",
+                      "available",
+                      "composing",
+                      "recording",
+                      "paused"
+                    ],
+                    "description": "Presence type. `available` is automatically reset to `unavailable` after 60s. `composing` and `recording` are automatically held for ~25s by WhatsApp. `paused` can be used to reset `composing` and `recording` early.",
+                    "example": "available"
+                  },
+                  "toJid": {
+                    "description": "Recipient whatsapp jid [Required for `composing`, `recording`, and `paused`]",
+                    "example": "551101234567@s.whatsapp.net",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "type"
+                ]
+              }
+            },
+            "text/plain": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "unavailable",
+                      "available",
+                      "composing",
+                      "recording",
+                      "paused"
+                    ],
+                    "description": "Presence type. `available` is automatically reset to `unavailable` after 60s. `composing` and `recording` are automatically held for ~25s by WhatsApp. `paused` can be used to reset `composing` and `recording` early.",
+                    "example": "available"
+                  },
+                  "toJid": {
+                    "description": "Recipient whatsapp jid [Required for `composing`, `recording`, and `paused`]",
+                    "example": "551101234567@s.whatsapp.net",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "type"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/connections/{phoneNumber}/send-message": {
+      "post": {
+        "parameters": [
+          {
+            "description": "Phone number for connection. Must have + prefix.",
+            "schema": {
+              "type": "string",
+              "minLength": 6,
+              "maxLength": 16,
+              "pattern": "^\\+\\d{5,15}$",
+              "example": "+551234567890"
+            },
+            "in": "path",
+            "name": "phoneNumber",
+            "required": true
+          }
+        ],
+        "operationId": "postConnectionsByPhoneNumberSend-message",
+        "tags": [
+          "Connections"
+        ],
+        "security": [
+          {
+            "xApiKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Message sent successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "key": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string"
+                            },
+                            "remoteJid": {
+                              "type": "string"
+                            },
+                            "fromMe": {
+                              "type": "boolean"
+                            },
+                            "participant": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "messageTimestamp": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "key",
+                        "messageTimestamp"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Message not sent"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "jid": {
+                    "description": "Recipient whatsapp jid",
+                    "example": "551101234567@s.whatsapp.net",
+                    "type": "string"
+                  },
+                  "messageContent": {
+                    "anyOf": [
+                      {
+                        "title": "Text message",
+                        "type": "object",
+                        "properties": {
+                          "text": {
+                            "description": "Text message",
+                            "example": "Hello world!",
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "text"
+                        ]
+                      },
+                      {
+                        "title": "Image message",
+                        "type": "object",
+                        "properties": {
+                          "image": {
+                            "description": "Base64 encoded image data",
+                            "type": "string"
+                          },
+                          "caption": {
+                            "type": "string"
+                          },
+                          "mimetype": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "image"
+                        ]
+                      },
+                      {
+                        "title": "Video message",
+                        "type": "object",
+                        "properties": {
+                          "video": {
+                            "description": "Base64 encoded video data",
+                            "type": "string"
+                          },
+                          "caption": {
+                            "type": "string"
+                          },
+                          "mimetype": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "video"
+                        ]
+                      },
+                      {
+                        "title": "Document message",
+                        "type": "object",
+                        "properties": {
+                          "document": {
+                            "description": "Base64 encoded document data",
+                            "type": "string"
+                          },
+                          "fileName": {
+                            "type": "string"
+                          },
+                          "mimetype": {
+                            "type": "string"
+                          },
+                          "caption": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "document"
+                        ]
+                      },
+                      {
+                        "title": "Audio message",
+                        "type": "object",
+                        "properties": {
+                          "audio": {
+                            "description": "Base64 encoded audio data",
+                            "type": "string"
+                          },
+                          "ptt": {
+                            "type": "boolean"
+                          },
+                          "mimetype": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "audio"
+                        ]
+                      },
+                      {
+                        "title": "Reaction message",
+                        "type": "object",
+                        "properties": {
+                          "react": {
+                            "type": "object",
+                            "properties": {
+                              "key": {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "remoteJid": {
+                                    "type": "string"
+                                  },
+                                  "fromMe": {
+                                    "type": "boolean"
+                                  },
+                                  "participant": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "text": {
+                                "description": "Emoji to react with",
+                                "example": "👍",
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "key",
+                              "text"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "react"
+                        ]
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "jid",
+                  "messageContent"
+                ]
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "jid": {
+                    "description": "Recipient whatsapp jid",
+                    "example": "551101234567@s.whatsapp.net",
+                    "type": "string"
+                  },
+                  "messageContent": {
+                    "anyOf": [
+                      {
+                        "title": "Text message",
+                        "type": "object",
+                        "properties": {
+                          "text": {
+                            "description": "Text message",
+                            "example": "Hello world!",
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "text"
+                        ]
+                      },
+                      {
+                        "title": "Image message",
+                        "type": "object",
+                        "properties": {
+                          "image": {
+                            "description": "Base64 encoded image data",
+                            "type": "string"
+                          },
+                          "caption": {
+                            "type": "string"
+                          },
+                          "mimetype": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "image"
+                        ]
+                      },
+                      {
+                        "title": "Video message",
+                        "type": "object",
+                        "properties": {
+                          "video": {
+                            "description": "Base64 encoded video data",
+                            "type": "string"
+                          },
+                          "caption": {
+                            "type": "string"
+                          },
+                          "mimetype": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "video"
+                        ]
+                      },
+                      {
+                        "title": "Document message",
+                        "type": "object",
+                        "properties": {
+                          "document": {
+                            "description": "Base64 encoded document data",
+                            "type": "string"
+                          },
+                          "fileName": {
+                            "type": "string"
+                          },
+                          "mimetype": {
+                            "type": "string"
+                          },
+                          "caption": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "document"
+                        ]
+                      },
+                      {
+                        "title": "Audio message",
+                        "type": "object",
+                        "properties": {
+                          "audio": {
+                            "description": "Base64 encoded audio data",
+                            "type": "string"
+                          },
+                          "ptt": {
+                            "type": "boolean"
+                          },
+                          "mimetype": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "audio"
+                        ]
+                      },
+                      {
+                        "title": "Reaction message",
+                        "type": "object",
+                        "properties": {
+                          "react": {
+                            "type": "object",
+                            "properties": {
+                              "key": {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "remoteJid": {
+                                    "type": "string"
+                                  },
+                                  "fromMe": {
+                                    "type": "boolean"
+                                  },
+                                  "participant": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "text": {
+                                "description": "Emoji to react with",
+                                "example": "👍",
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "key",
+                              "text"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "react"
+                        ]
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "jid",
+                  "messageContent"
+                ]
+              }
+            },
+            "text/plain": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "jid": {
+                    "description": "Recipient whatsapp jid",
+                    "example": "551101234567@s.whatsapp.net",
+                    "type": "string"
+                  },
+                  "messageContent": {
+                    "anyOf": [
+                      {
+                        "title": "Text message",
+                        "type": "object",
+                        "properties": {
+                          "text": {
+                            "description": "Text message",
+                            "example": "Hello world!",
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "text"
+                        ]
+                      },
+                      {
+                        "title": "Image message",
+                        "type": "object",
+                        "properties": {
+                          "image": {
+                            "description": "Base64 encoded image data",
+                            "type": "string"
+                          },
+                          "caption": {
+                            "type": "string"
+                          },
+                          "mimetype": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "image"
+                        ]
+                      },
+                      {
+                        "title": "Video message",
+                        "type": "object",
+                        "properties": {
+                          "video": {
+                            "description": "Base64 encoded video data",
+                            "type": "string"
+                          },
+                          "caption": {
+                            "type": "string"
+                          },
+                          "mimetype": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "video"
+                        ]
+                      },
+                      {
+                        "title": "Document message",
+                        "type": "object",
+                        "properties": {
+                          "document": {
+                            "description": "Base64 encoded document data",
+                            "type": "string"
+                          },
+                          "fileName": {
+                            "type": "string"
+                          },
+                          "mimetype": {
+                            "type": "string"
+                          },
+                          "caption": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "document"
+                        ]
+                      },
+                      {
+                        "title": "Audio message",
+                        "type": "object",
+                        "properties": {
+                          "audio": {
+                            "description": "Base64 encoded audio data",
+                            "type": "string"
+                          },
+                          "ptt": {
+                            "type": "boolean"
+                          },
+                          "mimetype": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "audio"
+                        ]
+                      },
+                      {
+                        "title": "Reaction message",
+                        "type": "object",
+                        "properties": {
+                          "react": {
+                            "type": "object",
+                            "properties": {
+                              "key": {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "remoteJid": {
+                                    "type": "string"
+                                  },
+                                  "fromMe": {
+                                    "type": "boolean"
+                                  },
+                                  "participant": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "text": {
+                                "description": "Emoji to react with",
+                                "example": "👍",
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "key",
+                              "text"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "react"
+                        ]
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "jid",
+                  "messageContent"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/connections/{phoneNumber}/read-messages": {
+      "post": {
+        "parameters": [
+          {
+            "description": "Phone number for connection. Must have + prefix.",
+            "schema": {
+              "type": "string",
+              "minLength": 6,
+              "maxLength": 16,
+              "pattern": "^\\+\\d{5,15}$",
+              "example": "+551234567890"
+            },
+            "in": "path",
+            "name": "phoneNumber",
+            "required": true
+          }
+        ],
+        "operationId": "postConnectionsByPhoneNumberRead-messages",
+        "tags": [
+          "Connections"
+        ],
+        "security": [
+          {
+            "xApiKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Message read successfully"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "keys": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "remoteJid": {
+                          "type": "string"
+                        },
+                        "fromMe": {
+                          "type": "boolean"
+                        },
+                        "participant": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "required": [
+                  "keys"
+                ]
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "keys": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "remoteJid": {
+                          "type": "string"
+                        },
+                        "fromMe": {
+                          "type": "boolean"
+                        },
+                        "participant": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "required": [
+                  "keys"
+                ]
+              }
+            },
+            "text/plain": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "keys": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "remoteJid": {
+                          "type": "string"
+                        },
+                        "fromMe": {
+                          "type": "boolean"
+                        },
+                        "participant": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "required": [
+                  "keys"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/connections/{phoneNumber}/chat-modify": {
+      "post": {
+        "parameters": [
+          {
+            "description": "Phone number for connection. Must have + prefix.",
+            "schema": {
+              "type": "string",
+              "minLength": 6,
+              "maxLength": 16,
+              "pattern": "^\\+\\d{5,15}$",
+              "example": "+551234567890"
+            },
+            "in": "path",
+            "name": "phoneNumber",
+            "required": true
+          }
+        ],
+        "operationId": "postConnectionsByPhoneNumberChat-modify",
+        "tags": [
+          "Connections"
+        ],
+        "security": [
+          {
+            "xApiKey": []
+          }
+        ],
+        "description": "Currently only supports marking chats as read/unread with `markRead` + `lastMessages`.",
+        "responses": {
+          "200": {
+            "description": "Chat modification was successfully applied"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "mod": {
+                    "title": "Mark read/unread",
+                    "type": "object",
+                    "properties": {
+                      "markRead": {
+                        "type": "boolean"
+                      },
+                      "lastMessages": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "key": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string"
+                                },
+                                "remoteJid": {
+                                  "type": "string"
+                                },
+                                "fromMe": {
+                                  "type": "boolean"
+                                },
+                                "participant": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "messageTimestamp": {
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "key",
+                            "messageTimestamp"
+                          ]
+                        }
+                      }
+                    },
+                    "required": [
+                      "markRead",
+                      "lastMessages"
+                    ]
+                  },
+                  "jid": {
+                    "description": "Recipient whatsapp jid",
+                    "example": "551101234567@s.whatsapp.net",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "mod",
+                  "jid"
+                ]
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "mod": {
+                    "title": "Mark read/unread",
+                    "type": "object",
+                    "properties": {
+                      "markRead": {
+                        "type": "boolean"
+                      },
+                      "lastMessages": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "key": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string"
+                                },
+                                "remoteJid": {
+                                  "type": "string"
+                                },
+                                "fromMe": {
+                                  "type": "boolean"
+                                },
+                                "participant": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "messageTimestamp": {
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "key",
+                            "messageTimestamp"
+                          ]
+                        }
+                      }
+                    },
+                    "required": [
+                      "markRead",
+                      "lastMessages"
+                    ]
+                  },
+                  "jid": {
+                    "description": "Recipient whatsapp jid",
+                    "example": "551101234567@s.whatsapp.net",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "mod",
+                  "jid"
+                ]
+              }
+            },
+            "text/plain": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "mod": {
+                    "title": "Mark read/unread",
+                    "type": "object",
+                    "properties": {
+                      "markRead": {
+                        "type": "boolean"
+                      },
+                      "lastMessages": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "key": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string"
+                                },
+                                "remoteJid": {
+                                  "type": "string"
+                                },
+                                "fromMe": {
+                                  "type": "boolean"
+                                },
+                                "participant": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "messageTimestamp": {
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "key",
+                            "messageTimestamp"
+                          ]
+                        }
+                      }
+                    },
+                    "required": [
+                      "markRead",
+                      "lastMessages"
+                    ]
+                  },
+                  "jid": {
+                    "description": "Recipient whatsapp jid",
+                    "example": "551101234567@s.whatsapp.net",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "mod",
+                  "jid"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/connections/{phoneNumber}/fetch-message-history": {
+      "post": {
+        "parameters": [
+          {
+            "description": "Phone number for connection. Must have + prefix.",
+            "schema": {
+              "type": "string",
+              "minLength": 6,
+              "maxLength": 16,
+              "pattern": "^\\+\\d{5,15}$",
+              "example": "+551234567890"
+            },
+            "in": "path",
+            "name": "phoneNumber",
+            "required": true
+          }
+        ],
+        "operationId": "postConnectionsByPhoneNumberFetch-message-history",
+        "tags": [
+          "Connections"
+        ],
+        "security": [
+          {
+            "xApiKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Message history fetched"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "count": {
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Number of messages to fetch",
+                    "example": 10,
+                    "type": "number"
+                  },
+                  "oldestMsgKey": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "remoteJid": {
+                        "type": "string"
+                      },
+                      "fromMe": {
+                        "type": "boolean"
+                      },
+                      "participant": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "oldestMsgTimestamp": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "count",
+                  "oldestMsgKey",
+                  "oldestMsgTimestamp"
+                ]
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "count": {
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Number of messages to fetch",
+                    "example": 10,
+                    "type": "number"
+                  },
+                  "oldestMsgKey": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "remoteJid": {
+                        "type": "string"
+                      },
+                      "fromMe": {
+                        "type": "boolean"
+                      },
+                      "participant": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "oldestMsgTimestamp": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "count",
+                  "oldestMsgKey",
+                  "oldestMsgTimestamp"
+                ]
+              }
+            },
+            "text/plain": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "count": {
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Number of messages to fetch",
+                    "example": 10,
+                    "type": "number"
+                  },
+                  "oldestMsgKey": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "remoteJid": {
+                        "type": "string"
+                      },
+                      "fromMe": {
+                        "type": "boolean"
+                      },
+                      "participant": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "oldestMsgTimestamp": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "count",
+                  "oldestMsgKey",
+                  "oldestMsgTimestamp"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/connections/{phoneNumber}/send-receipts": {
+      "post": {
+        "parameters": [
+          {
+            "description": "Phone number for connection. Must have + prefix.",
+            "schema": {
+              "type": "string",
+              "minLength": 6,
+              "maxLength": 16,
+              "pattern": "^\\+\\d{5,15}$",
+              "example": "+551234567890"
+            },
+            "in": "path",
+            "name": "phoneNumber",
+            "required": true
+          }
+        ],
+        "operationId": "postConnectionsByPhoneNumberSend-receipts",
+        "tags": [
+          "Connections"
+        ],
+        "security": [
+          {
+            "xApiKey": []
+          }
+        ],
+        "description": "Sends read receipts for the provided message keys. Currently only supports sending `received` event. For `read` receipts, use `read-messages` endpoint.",
+        "responses": {
+          "200": {
+            "description": "Receipts sent successfully"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "keys": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "remoteJid": {
+                          "type": "string"
+                        },
+                        "fromMe": {
+                          "type": "boolean"
+                        },
+                        "participant": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "required": [
+                  "keys"
+                ]
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "keys": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "remoteJid": {
+                          "type": "string"
+                        },
+                        "fromMe": {
+                          "type": "boolean"
+                        },
+                        "participant": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "required": [
+                  "keys"
+                ]
+              }
+            },
+            "text/plain": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "keys": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "remoteJid": {
+                          "type": "string"
+                        },
+                        "fromMe": {
+                          "type": "boolean"
+                        },
+                        "participant": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "required": [
+                  "keys"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/connections/{phoneNumber}/profile-picture-url": {
+      "get": {
+        "parameters": [
+          {
+            "description": "Phone number for connection. Must have + prefix.",
+            "schema": {
+              "type": "string",
+              "minLength": 6,
+              "maxLength": 16,
+              "pattern": "^\\+\\d{5,15}$",
+              "example": "+551234567890"
+            },
+            "in": "path",
+            "name": "phoneNumber",
+            "required": true
+          },
+          {
+            "description": "Recipient whatsapp jid",
+            "schema": {
+              "type": "string",
+              "example": "551101234567@s.whatsapp.net"
+            },
+            "in": "query",
+            "name": "jid",
+            "required": true
+          },
+          {
+            "description": "Picture quality type",
+            "schema": {
+              "default": "preview",
+              "anyOf": [
+                {
+                  "title": "preview",
+                  "const": "preview",
+                  "type": "string"
+                },
+                {
+                  "title": "image",
+                  "const": "image",
+                  "type": "string"
+                }
+              ]
+            },
+            "in": "query",
+            "name": "type",
+            "required": false
+          }
+        ],
+        "operationId": "getConnectionsByPhoneNumberProfile-picture-url",
+        "tags": [
+          "Connections"
+        ],
+        "security": [
+          {
+            "xApiKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Profile picture URL retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "jid": {
+                          "type": "string",
+                          "description": "WhatsApp JID of the phone number",
+                          "example": "551234567890@s.whatsapp.net"
+                        },
+                        "profilePictureUrl": {
+                          "type": "string",
+                          "nullable": true,
+                          "example": "https://pps.whatsapp.net/v/t61.24694-24/..."
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Profile picture not found"
+          }
+        }
+      }
+    },
+    "/connections/{phoneNumber}/on-whatsapp": {
+      "post": {
+        "parameters": [
+          {
+            "description": "Phone number for connection. Must have + prefix.",
+            "schema": {
+              "type": "string",
+              "minLength": 6,
+              "maxLength": 16,
+              "pattern": "^\\+\\d{5,15}$",
+              "example": "+551234567890"
+            },
+            "in": "path",
+            "name": "phoneNumber",
+            "required": true
+          }
+        ],
+        "operationId": "postConnectionsByPhoneNumberOn-whatsapp",
+        "tags": [
+          "Connections"
+        ],
+        "security": [
+          {
+            "xApiKey": []
+          }
+        ],
+        "description": "Check if phone numbers are registered on WhatsApp",
+        "responses": {
+          "200": {
+            "description": "Phone numbers checked successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "jid": {
+                            "type": "string",
+                            "description": "WhatsApp JID of the phone number",
+                            "example": "551234567890@s.whatsapp.net"
+                          },
+                          "exists": {
+                            "type": "boolean",
+                            "description": "Whether the phone number is registered on WhatsApp"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "jids": {
+                    "description": "Array of phone numbers to check if they are on WhatsApp",
+                    "minItems": 1,
+                    "maxItems": 50,
+                    "type": "array",
+                    "items": {
+                      "description": "Phone number formatted as jid",
+                      "pattern": "^\\d{5,15}@s.whatsapp.net$",
+                      "example": "551234567890@s.whatsapp.net",
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "jids"
+                ]
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "jids": {
+                    "description": "Array of phone numbers to check if they are on WhatsApp",
+                    "minItems": 1,
+                    "maxItems": 50,
+                    "type": "array",
+                    "items": {
+                      "description": "Phone number formatted as jid",
+                      "pattern": "^\\d{5,15}@s.whatsapp.net$",
+                      "example": "551234567890@s.whatsapp.net",
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "jids"
+                ]
+              }
+            },
+            "text/plain": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "jids": {
+                    "description": "Array of phone numbers to check if they are on WhatsApp",
+                    "minItems": 1,
+                    "maxItems": 50,
+                    "type": "array",
+                    "items": {
+                      "description": "Phone number formatted as jid",
+                      "pattern": "^\\d{5,15}@s.whatsapp.net$",
+                      "example": "551234567890@s.whatsapp.net",
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "jids"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/media/{messageId}": {
+      "get": {
+        "parameters": [
+          {
+            "description": "Message ID to download media from",
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Z0-9]{1,64}$"
+            },
+            "in": "path",
+            "name": "messageId",
+            "required": true
+          }
+        ],
+        "operationId": "getMediaByMessageId",
+        "tags": [
+          "Media"
+        ],
+        "description": "Media file download",
+        "security": [
+          {
+            "xApiKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Media file"
+          },
+          "404": {
+            "description": "File not found"
+          }
+        }
+      }
+    }
+  }
+}

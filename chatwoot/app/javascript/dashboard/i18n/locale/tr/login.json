@@ -1,0 +1,41 @@
+{
+  "LOGIN": {
+    "TITLE": "Chatwoot'ta oturum açın",
+    "EMAIL": {
+      "LABEL": "E-Posta",
+      "PLACEHOLDER": "ornek{'@'}sirketadi.com",
+      "ERROR": "Lütfen geçerli bir e-posta adresi girin"
+    },
+    "PASSWORD": {
+      "LABEL": "Parola",
+      "PLACEHOLDER": "Parola"
+    },
+    "API": {
+      "SUCCESS_MESSAGE": "Oturum açma başarılı",
+      "ERROR_MESSAGE": "Woot sunucusuna bağlanılamadı. Lütfen tekrar deneyin.",
+      "UNAUTH": "Kullanıcı adı veya parola yanlış. Lütfen tekrar deneyin."
+    },
+    "OAUTH": {
+      "GOOGLE_LOGIN": "Google ile giriş yap",
+      "BUSINESS_ACCOUNTS_ONLY": "Lütfen giriş yapmak için şirket e-posta adresinizi kullanın",
+      "NO_ACCOUNT_FOUND": "E-posta adresinizle ilişkilendirilmiş bir hesap bulunamadı."
+    },
+    "FORGOT_PASSWORD": "Parolanızı mı unuttunuz?",
+    "CREATE_NEW_ACCOUNT": "Yeni hesap oluştur",
+    "SUBMIT": "Oturum aç",
+    "SAML": {
+      "LABEL": "Login via SSO",
+      "TITLE": "Initiate Single Sign-on (SSO)",
+      "SUBTITLE": "Enter your work email to access your organization",
+      "BACK_TO_LOGIN": "Şifre ile giriş yap",
+      "WORK_EMAIL": {
+        "LABEL": "Work Email",
+        "PLACEHOLDER": "Enter your work email"
+      },
+      "SUBMIT": "Continue with SSO",
+      "API": {
+        "ERROR_MESSAGE": "SSO authentication failed. Please check your credentials and try again."
+      }
+    }
+  }
+}

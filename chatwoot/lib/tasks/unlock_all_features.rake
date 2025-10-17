@@ -1,0 +1,26 @@
+namespace :chatwoot do
+  namespace :unlock do
+    desc 'Habilita todos os recursos e define o plano padrão como enterprise'
+    task all: :environment do
+      features = YAML.safe_load(Rails.root.join('config/features.yml').read)
+      feature_names = features.map { |feature| feature['name'] }
+
+      config = InstallationConfig.find_or_initialize_by(name: 'ACCOUNT_LEVEL_FEATURE_DEFAULTS')
+      config.value = features
+      config.locked = true
+      config.save!
+
+      InstallationConfig.where(name: 'INSTALLATION_PRICING_PLAN').first_or_create!(value: 'enterprise', locked: false)
+      InstallationConfig.where(name: 'INSTALLATION_PRICING_PLAN').update_all(value: 'enterprise')
+      InstallationConfig.where(name: 'INSTALLATION_PRICING_PLAN_QUANTITY').first_or_create!(value: ChatwootApp.max_limit, locked: false)
+      InstallationConfig.where(name: 'INSTALLATION_PRICING_PLAN_QUANTITY').update_all(value: ChatwootApp.max_limit)
+
+      Account.find_each do |account|
+        account.enable_features(*feature_names)
+        account.save! if account.changed?
+      end
+
+      puts "✅ #{feature_names.count} recursos habilitados para #{Account.count} contas."
+    end
+  end
+end
