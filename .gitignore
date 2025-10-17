@@ -1,0 +1,15 @@
+# Dependências temporárias
+node_modules/
+vendor/bundle/
+tmp/
+log/
+
+# Arquivos de ambiente
+.env
+.env.local
+.env.*.local
+
+# Build artefacts
+*.log
+*.pid
+.DS_Store

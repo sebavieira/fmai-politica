@@ -1,0 +1,111 @@
+version: "3.9"
+
+x-chatwoot-env: &chatwoot-env
+  - ./chatwoot/.env.example
+
+services:
+  baileys-api:
+    build:
+      context: ./baileys-api
+      dockerfile: Dockerfile
+    env_file:
+      - ./baileys-api/.env.example
+    environment:
+      PORT: "3025"
+      REDIS_URL: redis://baileys-redis:6379
+    depends_on:
+      - baileys-redis
+    ports:
+      - "3025:3025"
+    restart: unless-stopped
+
+  baileys-redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - baileys-redis-data:/data
+    restart: unless-stopped
+
+  chatwoot-rails:
+    build:
+      context: ./chatwoot
+      dockerfile: docker/Dockerfile
+      args:
+        RAILS_ENV: production
+        BUNDLE_WITHOUT: "development:test"
+        RAILS_SERVE_STATIC_FILES: "true"
+    env_file: *chatwoot-env
+    environment:
+      NODE_ENV: production
+      RAILS_ENV: production
+      INSTALLATION_ENV: docker
+      REDIS_URL: redis://:${CHATWOOT_REDIS_PASSWORD:-chatwoot}@chatwoot-redis:6379
+      POSTGRES_HOST: chatwoot-postgres
+      POSTGRES_PORT: "5432"
+      POSTGRES_DATABASE: chatwoot
+      POSTGRES_USERNAME: postgres
+      POSTGRES_PASSWORD: chatwoot
+    depends_on:
+      - chatwoot-postgres
+      - chatwoot-redis
+    ports:
+      - "3000:3000"
+    entrypoint: docker/entrypoints/rails.sh
+    command: ["bundle", "exec", "rails", "s", "-p", "3000", "-b", "0.0.0.0"]
+    volumes:
+      - chatwoot-storage:/app/storage
+    restart: unless-stopped
+
+  chatwoot-sidekiq:
+    build:
+      context: ./chatwoot
+      dockerfile: docker/Dockerfile
+      args:
+        RAILS_ENV: production
+        BUNDLE_WITHOUT: "development:test"
+        RAILS_SERVE_STATIC_FILES: "true"
+    env_file: *chatwoot-env
+    environment:
+      NODE_ENV: production
+      RAILS_ENV: production
+      INSTALLATION_ENV: docker
+      REDIS_URL: redis://:${CHATWOOT_REDIS_PASSWORD:-chatwoot}@chatwoot-redis:6379
+      POSTGRES_HOST: chatwoot-postgres
+      POSTGRES_PORT: "5432"
+      POSTGRES_DATABASE: chatwoot
+      POSTGRES_USERNAME: postgres
+      POSTGRES_PASSWORD: chatwoot
+    depends_on:
+      - chatwoot-postgres
+      - chatwoot-redis
+    entrypoint: docker/entrypoints/rails.sh
+    command: ["bundle", "exec", "sidekiq", "-C", "config/sidekiq.yml"]
+    volumes:
+      - chatwoot-storage:/app/storage
+    restart: unless-stopped
+
+  chatwoot-postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_DB: chatwoot
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: chatwoot
+    volumes:
+      - chatwoot-postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  chatwoot-redis:
+    image: redis:7-alpine
+    command:
+      - sh
+      - -c
+      - redis-server --appendonly yes --requirepass "chatwoot"
+    volumes:
+      - chatwoot-redis-data:/data
+    restart: unless-stopped
+
+volumes:
+  baileys-redis-data:
+  chatwoot-storage:
+  chatwoot-postgres-data:
+  chatwoot-redis-data:
