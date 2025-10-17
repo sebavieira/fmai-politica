@@ -32,3 +32,9 @@ O workflow em `.github/workflows/docker.yml` cria imagens Docker para cada servi
 - `ghcr.io/<owner>/chatwoot:sha-<commit>`
 
 Cada push na rama `main` gera as versões `latest` e `sha-xxxxxxx`; você também pode disparar builds manualmente via *workflow dispatch*.
+
+### Permissões do GHCR
+
+- Em *Settings → Actions → General*, habilite `Workflow permissions → Read and write permissions` para que o `GITHUB_TOKEN` consiga publicar pacotes.
+- Se o pacote `chatwoot` ou `baileys-api` já existir (por exemplo, criado a partir de outro repositório), adicione `sebavieira/fmai-politica` na lista de permissões do pacote em *Packages → Settings* ou forneça um token pessoal com escopo `write:packages`.
+- Caso utilize um token externo, crie os segredos `GHCR_TOKEN` (token pessoal) e opcionalmente `GHCR_USERNAME`; o workflow usará esses valores automaticamente para autenticar no registro.
