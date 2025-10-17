@@ -46,9 +46,11 @@ jobs:
             fi
             echo "username=$USERNAME" >> "$GITHUB_OUTPUT"
             echo "password=${{ secrets.GHCR_TOKEN }}" >> "$GITHUB_OUTPUT"
+            echo "namespace=${{ github.repository_owner }}" >> "$GITHUB_OUTPUT"
           else
             echo "username=${{ github.actor }}" >> "$GITHUB_OUTPUT"
             echo "password=${{ secrets.GITHUB_TOKEN }}" >> "$GITHUB_OUTPUT"
+            echo "namespace=${{ github.repository }}" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Log in to GitHub Container Registry
@@ -68,7 +70,7 @@ jobs:
           file: ${{ matrix.dockerfile }}
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}:latest
-            ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}:sha-${{ env.SHORT_SHA }}
+            ghcr.io/${{ steps.registry-creds.outputs.namespace }}/${{ matrix.image }}:latest
+            ghcr.io/${{ steps.registry-creds.outputs.namespace }}/${{ matrix.image }}:sha-${{ env.SHORT_SHA }}
           build-args: ${{ matrix.build-args }}
           provenance: false

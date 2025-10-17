@@ -26,15 +26,16 @@ O workflow em `.github/workflows/docker.yml` cria imagens Docker para cada servi
 
 ### Tags publicadas
 
-- `ghcr.io/<owner>/baileys-api:latest`
-- `ghcr.io/<owner>/baileys-api:sha-<commit>`
-- `ghcr.io/<owner>/chatwoot:latest`
-- `ghcr.io/<owner>/chatwoot:sha-<commit>`
+- `ghcr.io/<namespace>/baileys-api:latest`
+- `ghcr.io/<namespace>/baileys-api:sha-<commit>`
+- `ghcr.io/<namespace>/chatwoot:latest`
+- `ghcr.io/<namespace>/chatwoot:sha-<commit>`
 
 Cada push na rama `main` gera as versões `latest` e `sha-xxxxxxx`; você também pode disparar builds manualmente via *workflow dispatch*.
 
 ### Permissões do GHCR
 
 - Em *Settings → Actions → General*, habilite `Workflow permissions → Read and write permissions` para que o `GITHUB_TOKEN` consiga publicar pacotes.
-- Se o pacote `chatwoot` ou `baileys-api` já existir (por exemplo, criado a partir de outro repositório), adicione `sebavieira/fmai-politica` na lista de permissões do pacote em *Packages → Settings* ou forneça um token pessoal com escopo `write:packages`.
-- Caso utilize um token externo, crie os segredos `GHCR_TOKEN` (token pessoal) e opcionalmente `GHCR_USERNAME`; o workflow usará esses valores automaticamente para autenticar no registro.
+- Sem token externo, as imagens são publicadas sob `ghcr.io/<owner>/<repo>/<serviço>`, o que funciona com o `GITHUB_TOKEN` padrão.
+- Se você precisa de um namespace mais curto (por exemplo, `ghcr.io/sebavieira/chatwoot`), gere um token pessoal com `write:packages`, salve-o como `GHCR_TOKEN` (e o usuário em `GHCR_USERNAME` se necessário); o workflow passará a usar esse namespace automaticamente.
+- Se o pacote já existir, lembre-se de conceder acesso ao repositório em *Packages → Settings*.
