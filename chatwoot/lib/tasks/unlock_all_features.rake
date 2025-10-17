@@ -10,10 +10,15 @@ namespace :chatwoot do
       config.locked = true
       config.save!
 
-      InstallationConfig.where(name: 'INSTALLATION_PRICING_PLAN').first_or_create!(value: 'enterprise', locked: false)
-      InstallationConfig.where(name: 'INSTALLATION_PRICING_PLAN').update_all(value: 'enterprise')
-      InstallationConfig.where(name: 'INSTALLATION_PRICING_PLAN_QUANTITY').first_or_create!(value: ChatwootApp.max_limit, locked: false)
-      InstallationConfig.where(name: 'INSTALLATION_PRICING_PLAN_QUANTITY').update_all(value: ChatwootApp.max_limit)
+      plan_config = InstallationConfig.find_or_initialize_by(name: 'INSTALLATION_PRICING_PLAN')
+      plan_config.value = 'enterprise'
+      plan_config.locked = false
+      plan_config.save!
+
+      quantity_config = InstallationConfig.find_or_initialize_by(name: 'INSTALLATION_PRICING_PLAN_QUANTITY')
+      quantity_config.value = ChatwootApp.max_limit
+      quantity_config.locked = false
+      quantity_config.save!
 
       Account.find_each do |account|
         account.enable_features(*feature_names)
