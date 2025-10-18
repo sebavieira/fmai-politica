@@ -8,6 +8,8 @@ const {
   BAILEYS_LOG_LEVEL,
   BAILEYS_CLIENT_VERSION,
   BAILEYS_OVERRIDE_CLIENT_VERSION,
+  BAILEYS_PROVIDER_DEFAULT_API_KEY,
+  BAILEYS_PROVIDER_DEFAULT_ADMIN_API_KEY,
   REDIS_URL,
   REDIS_PASSWORD,
   WEBHOOK_RETRY_POLICY_MAX_RETRIES,
@@ -65,6 +67,10 @@ const config = {
   redis: {
     url: REDIS_URL || "redis://localhost:6379",
     password: REDIS_PASSWORD || "",
+  },
+  auth: {
+    defaultUserApiKey: BAILEYS_PROVIDER_DEFAULT_API_KEY || null,
+    defaultAdminApiKey: BAILEYS_PROVIDER_DEFAULT_ADMIN_API_KEY || null,
   },
   webhook: {
     retryPolicy: {

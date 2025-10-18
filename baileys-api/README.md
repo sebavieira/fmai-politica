@@ -68,8 +68,9 @@ The `docker-compose.coolify.yml` can be adapted for other Docker environments. Y
     - If you have an existing Redis instance, update the `REDIS_URL` and `REDIS_PASSWORD` environment variables in the `docker-compose.yml` file to point to your Redis service.
     - Alternatively, you can add a new Redis service definition to the `docker-compose.yml` file.
 2.  **API Key Management**:
-    - In production/non-development environments, authentication is required. The `manage-api-keys.ts` script is used to create and manage API keys.
-    - The provided `docker-compose.coolify.yml` automatically creates a user API key using the command: `bun manage-api-keys create user ${SERVICE_PASSWORD_64_DEFAULTAPIKEY}`. You can adapt this or run the script manually within the container or a separate environment to generate your API keys.
+    - In production/non-development environments, authentication is required.
+    - When you set the environment variables `BAILEYS_PROVIDER_DEFAULT_API_KEY` (and optionally `BAILEYS_PROVIDER_DEFAULT_ADMIN_API_KEY`), the server now ensures those keys exist in Redis on startup—no manual seeding needed.
+    - The provided `docker-compose.coolify.yml` automatically creates a user API key using the command: `bun manage-api-keys create user ${SERVICE_PASSWORD_64_DEFAULTAPIKEY}`. You can adapt this or run the script manually within the container or a separate environment to generate your own keys if you prefer not to rely on the env-based bootstrap.
     - To create an API key manually:
       ```bash
       bun scripts/manage-api-keys.ts create <role> [key]
@@ -113,6 +114,8 @@ The `docker-compose.coolify.yml` can be adapted for other Docker environments. Y
 | `IGNORE_NEWSLETTER_MESSAGES`          | If `true`, messages from newsletters/channels will be ignored.                                             | `true`                   |
 | `IGNORE_BOT_MESSAGES`                 | If `true`, messages from bots (e.g., official WhatsApp bot) will be ignored.                               | `true`                   |
 | `IGNORE_META_AI_MESSAGES`             | If `true`, messages from Meta AI will be ignored.                                                          | `true`                   |
+| `BAILEYS_PROVIDER_DEFAULT_API_KEY`    | Optional default **user** API key that will be ensured at startup.                                         |                          |
+| `BAILEYS_PROVIDER_DEFAULT_ADMIN_API_KEY` | Optional default **admin** API key that will be ensured at startup.                                       |                          |
 
 4.  **(Optional) Create API Keys for Development (if not bypassing auth)**:
     If you wish to test authentication in development, you can create API keys:

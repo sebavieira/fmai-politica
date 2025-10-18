@@ -3,8 +3,9 @@ import baileys from "@/baileys";
 import config from "@/config";
 import { errorToString } from "@/helpers/errorToString";
 import logger, { deepSanitizeObject } from "@/lib/logger";
-import { initializeRedis } from "@/lib/redis";
+import redis, { initializeRedis } from "@/lib/redis";
 import { MediaCleanupService } from "@/services/mediaCleanup";
+import { REDIS_KEY_PREFIX } from "@/middlewares/auth";
 
 process.on("uncaughtException", (error) => {
   logger.error(
@@ -26,6 +27,30 @@ const mediaCleanup = new MediaCleanupService({
   intervalMs: config.media.cleanupIntervalMs,
 });
 
+async function ensureApiKey(role: "user" | "admin", apiKey: string | null) {
+  if (!apiKey) {
+    return;
+  }
+
+  const redisKey = `${REDIS_KEY_PREFIX}:${apiKey}`;
+  const exists = await redis.exists(redisKey);
+
+  if (exists) {
+    return;
+  }
+
+  await redis.set(redisKey, JSON.stringify({ role }));
+  logger.info(
+    "Created default %s API key from environment variable",
+    role,
+  );
+}
+
+async function ensureDefaultApiKeys() {
+  await ensureApiKey("user", config.auth.defaultUserApiKey);
+  await ensureApiKey("admin", config.auth.defaultAdminApiKey);
+}
+
 app.listen(config.port, () => {
   logger.info(
     `${config.packageInfo.name}@${config.packageInfo.version} running on ${app.server?.hostname}:${app.server?.port}`,
@@ -40,17 +65,25 @@ app.listen(config.port, () => {
   );
 
   if (config.media.cleanupEnabled) {
-    mediaCleanup.start();
-  }
+   mediaCleanup.start();
+ }
 
-  initializeRedis().then(() =>
-    baileys.reconnectFromAuthStore().catch((error) => {
+  initializeRedis()
+    .then(async () => {
+      await ensureDefaultApiKeys();
+      await baileys.reconnectFromAuthStore().catch((error) => {
+        logger.error(
+          "Failed to reconnect from auth store: %s",
+          errorToString(error),
+        );
+      });
+    })
+    .catch((error) => {
       logger.error(
-        "Failed to reconnect from auth store: %s",
+        "Failed to initialize Redis connection: %s",
         errorToString(error),
       );
-    }),
-  );
+    });
 });
 
 const shutdown = (signal: string) => {
