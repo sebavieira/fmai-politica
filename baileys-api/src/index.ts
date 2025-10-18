@@ -51,39 +51,39 @@ async function ensureDefaultApiKeys() {
   await ensureApiKey("admin", config.auth.defaultAdminApiKey);
 }
 
-app.listen(config.port, () => {
-  logger.info(
-    `${config.packageInfo.name}@${config.packageInfo.version} running on ${app.server?.hostname}:${app.server?.port}`,
-  );
-  logger.info(
-    "Loaded config %s",
-    JSON.stringify(
-      deepSanitizeObject(config, { omitKeys: ["password"] }),
-      null,
-      2,
-    ),
-  );
+async function start() {
+  await initializeRedis();
+  await ensureDefaultApiKeys();
 
-  if (config.media.cleanupEnabled) {
-   mediaCleanup.start();
- }
+  app.listen(config.port, () => {
+    logger.info(
+      `${config.packageInfo.name}@${config.packageInfo.version} running on ${app.server?.hostname}:${app.server?.port}`,
+    );
+    logger.info(
+      "Loaded config %s",
+      JSON.stringify(
+        deepSanitizeObject(config, { omitKeys: ["password"] }),
+        null,
+        2,
+      ),
+    );
 
-  initializeRedis()
-    .then(async () => {
-      await ensureDefaultApiKeys();
-      await baileys.reconnectFromAuthStore().catch((error) => {
-        logger.error(
-          "Failed to reconnect from auth store: %s",
-          errorToString(error),
-        );
-      });
-    })
-    .catch((error) => {
-      logger.error(
-        "Failed to initialize Redis connection: %s",
-        errorToString(error),
-      );
-    });
+    if (config.media.cleanupEnabled) {
+      mediaCleanup.start();
+    }
+  });
+
+  void baileys.reconnectFromAuthStore().catch((error) => {
+    logger.error(
+      "Failed to reconnect from auth store: %s",
+      errorToString(error),
+    );
+  });
+}
+
+start().catch((error) => {
+  logger.error("Failed to start application: %s", errorToString(error));
+  process.exit(1);
 });
 
 const shutdown = (signal: string) => {
